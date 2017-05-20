@@ -25,10 +25,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 30;
+  std_a_ = 0.1;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 30;
+  std_yawdd_ = 0.1;
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_ = 0.15;
@@ -85,7 +85,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   // if not initiated yet,
   if (!is_initialized_){
     x_ = VectorXd(n_x_);
-    x_ << 0.1, 0.1, 0.1, 0.1, .1;
+    x_ << 1, 1, 1, 1, 1;
 
     P_ << 1, 0, 0, 0, 0,
           0, 1, 0, 0, 0,
@@ -100,13 +100,13 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
           float ro = meas_package.raw_measurements_[0];
           float phi = meas_package.raw_measurements_[1];
           float ro_dot = meas_package.raw_measurements_[2];
-          x_ << ro * cos(phi), ro * sin(phi), ro_dot * cos(phi), ro_dot * sin(phi);
+          x_ << ro * cos(phi), ro * sin(phi), ro_dot * cos(phi), ro_dot * sin(phi),1;
         }
         else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
           /**
           Initialize state.
            */
-          x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
+          x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1],1,1,1;
         }
 
         // done initializing, no need to predict or update
@@ -338,7 +338,6 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   //update state mean and covariance matrix
   x_ = x_ + K * z_diff;
   P_ = P_ - K*S*K.transpose();
-
 }
 
 /**
